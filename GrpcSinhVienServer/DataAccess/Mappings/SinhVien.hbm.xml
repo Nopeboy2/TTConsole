@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="GrpcSinhVienServer"
+                   namespace="GrpcSinhVienServer.Models">
+
+	<class name="SinhVien" table="SinhVien">
+		<id name="MaSo" column="MaSo" type="string">
+			<generator class="assigned"/>
+		</id>
+		<property name="HoTen" column="HoTen" type="string"/>
+		<property name="NgaySinh" column="NgaySinh" type="DateTime"/>
+		<property name="DiaChi" column="DiaChi" type="string"/>
+
+		<many-to-one name="Lop" column="MaLop" class="LopHoc" cascade="all"/>
+	</class>
+</hibernate-mapping>

@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="GrpcSinhVienServer"
+                   namespace="GrpcSinhVienServer.Models">
+
+	<class name="LopHoc" table="LopHoc">
+		<id name="MaLop" column="MaLop" type="string">
+			<generator class="assigned"/>
+		</id>
+		<property name="TenLop" column="TenLop" type="string"/>
+		<property name="MonHoc" column="MonHoc" type="string"/>
+
+		<many-to-one name="GiaoVien" column="MaGV" class="GiaoVien" cascade="all"/>
+
+		<bag name="DanhSachSinhVien" inverse="true" cascade="all-delete-orphan">
+			<key column="MaLop"/>
+			<one-to-many class="SinhVien"/>
+		</bag>
+	</class>
+</hibernate-mapping>

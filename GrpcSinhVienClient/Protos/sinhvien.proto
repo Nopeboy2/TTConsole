@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "GrpcSinhVienClient.Protos";
+
+package sinhvien;
+
+message SinhVienModel {
+  string maSo = 1;
+  string hoTen = 2;
+  string ngaySinh = 3;
+  string diaChi = 4;
+  string tenLop = 5;
+  string tenGiaoVien = 6;
+  string monHoc = 7;        
+  string ngaySinhGV = 8;
+}
+
+message DanhSachSinhVien {
+  repeated SinhVienModel danhSach = 1;
+}
+
+message SinhVienRequest {
+  string maSo = 1;
+}
+
+service SinhVienService {
+  rpc LayTatCa (google.protobuf.Empty) returns (DanhSachSinhVien);
+  rpc Them (SinhVienModel) returns (google.protobuf.Empty);
+  rpc Sua (SinhVienModel) returns (google.protobuf.Empty);
+  rpc Xoa (SinhVienRequest) returns (google.protobuf.Empty);
+  rpc SapXepTheoTen (google.protobuf.Empty) returns (DanhSachSinhVien);
+  rpc TimKiem (SinhVienRequest) returns (SinhVienModel);
+}

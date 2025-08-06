@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="DataAccess\Mappings\GiaoVien.hbm.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Google.Protobuf" Version="3.31.1" />
+		<PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
+		<PackageReference Include="Grpc.Tools" Version="2.72.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="NHibernate" Version="5.5.2" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Protobuf Include="Protos\sinhvien.proto" GrpcServices="Server" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- NHibernate mapping files -->
+		<EmbeddedResource Include="DataAccess\Mappings\GiaoVien.hbm.xml" />
+		<EmbeddedResource Include="DataAccess\Mappings\SinhVien.hbm.xml" />
+		<EmbeddedResource Include="DataAccess\Mappings\LopHoc.hbm.xml" />
+		<!-- Nếu có file hibernate.cfg.xml -->
+		<EmbeddedResource Include="hibernate.cfg.xml" />
+	</ItemGroup>
+
+</Project>
