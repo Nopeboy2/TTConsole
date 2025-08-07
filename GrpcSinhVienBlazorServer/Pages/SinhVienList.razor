@@ -1,0 +1,147 @@
+@page "/sinhvien"
+@using GrpcSinhVien
+@inject SinhVienService.SinhVienServiceClient SinhVienGrpc
+
+<h3>Quản lý sinh viên</h3>
+
+<div class="mb-3 d-flex justify-content-between align-items-center">
+    <div class="input-group w-50">
+        <input type="text" class="form-control" placeholder="Tìm theo tên"
+               @bind="tuKhoa" @bind:event="oninput" />
+        <button class="btn btn-outline-primary" @onclick="TimKiem">Tìm</button>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary" @onclick="SapXepTheoTen">
+            Sắp xếp theo tên @(sapXepTang ? "▲" : "▼")
+        </button>
+        <button class="btn btn-success" @onclick="ThemSinhVien">+ Thêm sinh viên</button>
+    </div>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Mã số</th>
+            <th>Họ tên</th>
+            <th>Ngày sinh</th>
+            <th>Địa chỉ</th>
+            <th>Lớp</th>
+            <th>Giáo viên</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var sv in danhSachSinhVien)
+        {
+            <tr>
+                <td>@sv.MaSo</td>
+                <td>@sv.HoTen</td>
+                <td>@sv.NgaySinh</td>
+                <td>@sv.DiaChi</td>
+                <td>@sv.TenLop</td>
+                <td>@sv.TenGiaoVien</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" @onclick="() => SuaSinhVien(sv)">Sửa</button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => XoaSinhVien(sv.MaSo)">Xoá</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (hienPopup)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(
+                        string.IsNullOrEmpty(sinhVien.MaSo) ? "Thêm sinh viên" : "Sửa sinh viên"
+                    )</h5>
+                    <button type="button" class="btn-close" @onclick="DongForm"></button>
+                </div>
+                <div class="modal-body">
+                    <SinhVienForm SinhVien="sinhVien" OnSaved="OnLuuXong" OnCanceled="DongForm" />
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    </div>
+}
+
+@code {
+    List<SinhVienModel> danhSachSinhVien = new();
+    SinhVienModel sinhVien = new();
+    string tuKhoa = "";
+    bool hienPopup = false;
+    bool sapXepTang = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDanhSach();
+    }
+
+    private async Task LoadDanhSach()
+    {
+        var res = await SinhVienGrpc.LayTatCaAsync(new Google.Protobuf.WellKnownTypes.Empty());
+        danhSachSinhVien = res.DanhSach
+            .Where(sv => string.IsNullOrWhiteSpace(tuKhoa) || sv.HoTen.Contains(tuKhoa, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (sapXepTang)
+            danhSachSinhVien = danhSachSinhVien.OrderBy(sv => sv.HoTen).ToList();
+        else
+            danhSachSinhVien = danhSachSinhVien.OrderByDescending(sv => sv.HoTen).ToList();
+    }
+
+    private async Task TimKiem()
+    {
+        await LoadDanhSach();
+    }
+
+    private async Task SapXepTheoTen()
+    {
+        sapXepTang = !sapXepTang;
+        await LoadDanhSach();
+    }
+
+    private void ThemSinhVien()
+    {
+        sinhVien = new SinhVienModel();
+        hienPopup = true;
+    }
+
+    private void SuaSinhVien(SinhVienModel sv)
+    {
+        sinhVien = new SinhVienModel
+        {
+            MaSo = sv.MaSo,
+            HoTen = sv.HoTen,
+            NgaySinh = sv.NgaySinh,
+            DiaChi = sv.DiaChi,
+            TenLop = sv.TenLop,
+            MonHoc = sv.MonHoc,
+            TenGiaoVien = sv.TenGiaoVien,
+            NgaySinhGV = sv.NgaySinhGV
+        };
+        hienPopup = true;
+    }
+
+    private void DongForm()
+    {
+        hienPopup = false;
+    }
+
+    private async Task OnLuuXong()
+    {
+        hienPopup = false;
+        await LoadDanhSach();
+    }
+
+    private async Task XoaSinhVien(string maSo)
+    {
+        await SinhVienGrpc.XoaAsync(new SinhVienRequest { MaSo = maSo });
+        await LoadDanhSach();
+    }
+}
+
